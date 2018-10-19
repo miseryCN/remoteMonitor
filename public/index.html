@@ -12,7 +12,7 @@
 <body>
 <div id="app">
     <i-button @click="show">rng</i-button>
-    <Modal fullscreen  v-model="visible" title="瓜皮">
+    <Modal  v-model="visible" title="瓜皮">
         <img style="width:100%" v-if="screenShotUrl" :src="`/static/${screenShotUrl}`"/>
     </Modal>
 </div>
