@@ -64,7 +64,7 @@ def show_func():
     @show.route('/', methods=['GET', 'POST'])
     def index():
         return send_file("./public/index.html")
-    show.run(host='0.0.0.0', port=Config.get('server', 'port1'))
+    show.run(host='0.0.0.0', port=Config.get('server', 'port2'))
 
 
 if __name__ == '__main__':
