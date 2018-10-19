@@ -9,10 +9,13 @@ from PIL import ImageGrab
 from base64 import b64encode
 from requests import post
 from time import sleep
+import configparser
 
+Config = configparser.ConfigParser()
+Config.read("config.ini")
 
-url = 'http://127.0.0.1:1024'
-save_path = 'd:/1.jpg'
+url = 'http://' + Config.get('server', 'host') + ':' + Config.get('server', 'port1')
+save_path = Config.get('file', 'path')
 
 
 

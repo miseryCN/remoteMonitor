@@ -10,11 +10,15 @@
 """
 
 import threading
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, jsonify
 from base64 import b64decode
 from datetime import datetime
 from time import sleep
 import os
+import configparser
+
+Config = configparser.ConfigParser()
+Config.read("config.ini")
 
 
 be_monitor = Flask(__name__)
@@ -32,7 +36,7 @@ def be_monitor_func():
             image = b64decode(data['image'])
             global name
             name = datetime.now().strftime('%Y%m%d%H%M%S%f')+'.jpg'
-            open('static/'+name,'wb').write(image)
+            open('static/'+name, 'wb').write(image)
             global isConnect
             isConnect = False
 
@@ -41,7 +45,7 @@ def be_monitor_func():
         else:
             return 'heartBeat'
 
-    be_monitor.run(host='0.0.0.0', port='1024')
+    be_monitor.run(host='0.0.0.0', port=Config.get('server', 'port1'))
 
 
 def show_func():
@@ -55,12 +59,12 @@ def show_func():
             if old_name != name:
                 flag = False
             sleep(0.1)
-        return {"name":name}
+        return jsonify({"name":name})
 
     @show.route('/', methods=['GET', 'POST'])
     def index():
         return send_file("./public/index.html")
-    show.run(host='0.0.0.0', port='1025')
+    show.run(host='0.0.0.0', port=Config.get('server', 'port1'))
 
 
 if __name__ == '__main__':
