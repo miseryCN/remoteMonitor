@@ -10,8 +10,8 @@ from base64 import b64encode
 from requests import post
 from time import sleep
 
-url = 'http://47.100.219.163:20240'
-#url = 'http://127.0.0.1:1024'
+
+url = 'http://127.0.0.1:1024'
 save_path = 'd:/1.jpg'
 
 
