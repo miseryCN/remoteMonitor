@@ -9,19 +9,26 @@
 
 """
 
-import threading
-from flask import Flask,request
+from flask import Flask, render_template,send_file
+from flask_socketio import SocketIO,send,emit
+import json
 
+config = json.load(open("config.json", encoding='utf-8'))
 app = Flask(__name__)
+app.config['SECRET_KEY'] = config["server"]["secret"]
+socketio = SocketIO(app)
 
-@app.route('/',methods=['GET','POST'])
-def index():
-    print(request.form['transfer_type'])
-    return 'wkm_da_sa_bi'
 
-def run(port):
-    app.run(host='0.0.0.0',port=port)
+@app.route('/')
+def hello():
+    return send_file("./public/index.html")
 
-for port in range(1024,1027):
-    threading.Thread(target=run,args=(port,)).start()
+
+@socketio.on('show')
+def show():
+    emit('show', {"received": True})
+
+
+if __name__ == '__main__':
+    socketio.run(app)
 
