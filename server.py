@@ -10,7 +10,7 @@
 """
 
 import threading
-from flask import Flask,request
+from flask import Flask, request, send_file
 from base64 import b64decode
 from datetime import datetime
 from time import sleep
@@ -22,6 +22,7 @@ show = Flask(__name__)
 monitor_client = Flask(__name__)
 isConnect = False
 name = None
+
 
 def be_monitor_func():
     @be_monitor.route('/',methods=['GET','POST'])
@@ -40,10 +41,11 @@ def be_monitor_func():
         else:
             return 'heartBeat'
 
-    be_monitor.run(host='0.0.0.0',port='1024')
+    be_monitor.run(host='0.0.0.0', port='1024')
+
 
 def show_func():
-    @show.route('/',methods=['GET','POST'])
+    @show.route('/screenshot', methods=['GET', 'POST'])
     def show_index():
         old_name = name
         global isConnect
@@ -53,8 +55,13 @@ def show_func():
             if old_name != name:
                 flag = False
             sleep(0.1)
-        return '<img src=\"static/'+name+'\"/>'
-    show.run(host='0.0.0.0',port='1025')
+        return {"name":name}
+
+    @show.route('/', methods=['GET', 'POST'])
+    def index():
+        return send_file("./public/index.html")
+    show.run(host='0.0.0.0', port='1025')
+
 
 if __name__ == '__main__':
     if not os.path.exists('./static'):
