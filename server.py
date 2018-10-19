@@ -11,17 +11,53 @@
 
 import threading
 from flask import Flask,request
+from base64 import b64decode
+from datetime import datetime
+from time import sleep
+import os
 
-app = Flask(__name__)
 
-@app.route('/',methods=['GET','POST'])
-def index():
-    print(request.form['transfer_type'])
-    return 'wkm_da_sa_bi'
+be_monitor = Flask(__name__)
+show = Flask(__name__)
+monitor_client = Flask(__name__)
+isConnect = False
+name = None
 
-def run(port):
-    app.run(host='0.0.0.0',port=port)
+def be_monitor_func():
+    @be_monitor.route('/',methods=['GET','POST'])
+    def be_monitor_index():
+        data = request.form
+        if data['transferType'] == 'sendImage':
+            image = b64decode(data['image'])
+            global name
+            name = datetime.now().strftime('%Y%m%d%H%M%S%f')+'.jpg'
+            open('static/'+name,'wb').write(image)
+            global isConnect
+            isConnect = False
 
-for port in range(1024,1027):
-    threading.Thread(target=run,args=(port,)).start()
+        if isConnect:
+            return 'screenShot'
+        else:
+            return 'heartBeat'
 
+    be_monitor.run(host='0.0.0.0',port='1024')
+
+def show_func():
+    @show.route('/',methods=['GET','POST'])
+    def show_index():
+        old_name = name
+        global isConnect
+        isConnect = True
+        flag = True
+        while flag:
+            if old_name != name:
+                flag = False
+            sleep(0.1)
+        return '<img src=\"static/'+name+'\"/>'
+    show.run(host='0.0.0.0',port='1025')
+
+if __name__ == '__main__':
+    if not os.path.exists('./static'):
+      os.makedirs('./static/')
+    threading.Thread(target=be_monitor_func).start()
+    threading.Thread(target=show_func).start()
