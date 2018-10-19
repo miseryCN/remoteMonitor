@@ -14,8 +14,8 @@ from flask import Flask, request, send_file, jsonify
 from base64 import b64decode
 from datetime import datetime
 from time import sleep
-import os
 import configparser
+import os
 
 Config = configparser.ConfigParser()
 Config.read("config.ini")
@@ -55,10 +55,14 @@ def show_func():
         global isConnect
         isConnect = True
         flag = True
+        count = 0
         while flag:
             if old_name != name:
                 flag = False
             sleep(0.1)
+            count+=1
+            if count == 50:
+                return jsonify({"name":"404.png"})
         return jsonify({"name":name})
 
     @show.route('/', methods=['GET', 'POST'])
@@ -68,7 +72,7 @@ def show_func():
 
 
 if __name__ == '__main__':
-    if not os.path.exists('./static'):
-      os.makedirs('./static/')
+    if not os.path.exists('./static/'):
+        os.makedirs('./static/')
     threading.Thread(target=be_monitor_func).start()
     threading.Thread(target=show_func).start()
