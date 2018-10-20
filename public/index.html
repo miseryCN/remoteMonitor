@@ -11,9 +11,10 @@
 </head>
 <body>
 <div id="app">
-    <i-button @click="show">rng</i-button>
+    <i-button @click="show">显示截图</i-button>
     <Modal  v-model="visible" title="瓜皮">
         <img style="width:100%" v-if="screenShotUrl" :src="`/static/${screenShotUrl}`"/>
+        <i-button @click="screenShot">更新截图</i-button>
     </Modal>
 </div>
 <script>
@@ -24,14 +25,19 @@
             visible: false,
             screenShotUrl:""
         },
+        mounted(){
+            this.screenShot();
+        },
         methods: {
-            show: function () {
-                var self = this;
-                self.visible = true;
+            screenShot:function(){
+                const self = this;
                 self.$http.get('/screenshot')
                     .then(function (res) {
                         self.screenShotUrl = res.body.name;
                     })
+            },
+            show: function () {
+                this.visible = true;
             }
         }
     })
