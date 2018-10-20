@@ -44,7 +44,9 @@
                     .then(function (res) {
                         self.screenShotUrl = res.body.name;
                         if (self.timer){
-                            self.screenShot()
+                            setTimeout(function () {
+                                self.screenShot()
+                            },500)
                         }
                     })
             },
