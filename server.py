@@ -62,7 +62,7 @@ def show_func():
             sleep(0.1)
             count+=1
             if count == 50:
-                return jsonify({"name":"404.png"})
+                return jsonify({"name":"404.jpg"})
         return jsonify({"name":name})
 
     @show.route('/', methods=['GET', 'POST'])
