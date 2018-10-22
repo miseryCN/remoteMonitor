@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>大瓜皮</title>
+    <link rel="stylesheet" type="text/css" href="http://unpkg.com/iview/dist/styles/iview.css">
+    <script type="text/javascript" src="http://vuejs.org/js/vue.min.js"></script>
+    <script type="text/javascript" src="http://unpkg.com/iview/dist/iview.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <i-button @click="getClients">获得客户端</i-button>
+    <Modal v-model="clientsShow" title="客户端">
+        <div v-for="(oem,client) of clients">
+            <i-button @click="print(client)">{{ oem }}</i-button>
+        </div>
+    </Modal>
+    <Modal v-model="picShow" title="图片">
+        <img :src="pic" style="width:100%"/>
+    </Modal>
+</div>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+</script>
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    new Vue({
+        el: '#app',
+        data: {
+            visible: false,
+            clients:{},
+            clientsShow:false,
+            picShow:false,
+            pic:""
+        },
+        mounted(){
+            var self = this;
+            socket.on('connect', function() {
+                console.log('已连接');
+            });
+            socket.on('show',function () {
+                self.visible = true;
+            });
+            socket.on('get_clients',function (clients) {
+                self.clients = clients;
+            });
+            socket.on('print_result',function (data) {
+                self.pic = '/static/'+data.name;
+                self.picShow = true;
+            })
+        },
+        methods: {
+            show: function () {
+                socket.emit('show');
+            },
+            getClients: function () {
+                socket.emit('get_clients')
+                this.clientsShow = true;
+            },
+            print: function (client) {
+                socket.emit('print',client)
+            }
+
+        }
+    })
+  </script>
+</body>
+</html>
