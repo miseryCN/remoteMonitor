@@ -7,6 +7,9 @@
 线程2: 开启web服务器，实现网页上的图片显示功能  端口 1025
 线程3: 接收客户端的心跳包，发送图片到客户端  端口 1026
 
+通过机器码识别不同机器，实现多机器统一管理
+机器码:主板序列号+bios序列号
+
 """
 
 import threading
@@ -18,29 +21,36 @@ import configparser
 import os
 
 Config = configparser.ConfigParser()
+lock = threading.Lock()
 Config.read("config.ini")
 
 
 be_monitor = Flask(__name__)
 show = Flask(__name__)
 monitor_client = Flask(__name__)
-isConnect = False
-name = None
+isConnect = {}
+name = ''
 
-
+'''
+心跳包，图片传输功能
+'''
 def be_monitor_func():
     @be_monitor.route('/',methods=['GET','POST'])
     def be_monitor_index():
         data = request.form
+        serialNumber = data['serialNumber']
         if data['transferType'] == 'sendImage':
             image = b64decode(data['image'])
+
             global name
-            name = datetime.now().strftime('%Y%m%d%H%M%S%f')+'.jpg'
+            lock.acquire()
+            name = serialNumber+datetime.now().strftime('%Y%m%d%H%M%S%f')+'.jpg'
             open('static/'+name, 'wb').write(image)
             global isConnect
-            isConnect = False
+            isConnect[serialNumber] = False
+            lock.release()
 
-        if isConnect:
+        if isConnect[serialNumber]:
             return 'screenShot'
         else:
             return 'heartBeat'
@@ -48,12 +58,17 @@ def be_monitor_func():
     be_monitor.run(host='0.0.0.0', port=Config.get('server', 'port1'))
 
 
+'''
+web展示功能
+'''
 def show_func():
     @show.route('/screenshot', methods=['GET', 'POST'])
-    def show_index():
+    def show_index(shotSerialNumber):
         old_name = name
         global isConnect
-        isConnect = True
+        lock.acquire()
+        isConnect[shotSerialNumber] = True   #这里请把需要被截图的电脑的serialNumber传进来
+        lock.release()
         flag = True
         count = 0
         while flag:
@@ -61,7 +76,7 @@ def show_func():
                 flag = False
             sleep(0.1)
             count+=1
-            if count == 50:
+            if count == 25:
                 return jsonify({"name":"404.jpg"})
         return jsonify({"name":name})
 
@@ -74,5 +89,5 @@ def show_func():
 if __name__ == '__main__':
     if not os.path.exists('./static/'):
         os.makedirs('./static/')
-    threading.Thread(target=be_monitor_func).start()
+    threading.Thread(target=be_monitor_func).start()    #多线程
     threading.Thread(target=show_func).start()
