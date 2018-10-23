@@ -20,6 +20,7 @@ from time import sleep
 import configparser
 import os
 
+
 Config = configparser.ConfigParser()
 lock = threading.Lock()
 Config.read("config.ini")
@@ -89,5 +90,5 @@ def show_func():
 if __name__ == '__main__':
     if not os.path.exists('./static/'):
         os.makedirs('./static/')
-    threading.Thread(target=be_monitor_func).start()    #多线程
+    threading.Thread(target=be_monitor_func).start()
     threading.Thread(target=show_func).start()
